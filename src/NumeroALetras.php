@@ -1,6 +1,6 @@
 <?php
 /**
- * Clase que implementa un coversor de números
+ * Clase que implementa un conversor de números
  * a letras.
  *
  * Soporte para PHP >= 5.4
@@ -61,7 +61,7 @@ class NumeroALetras
         'NOVECIENTOS '
     ];
 
-    public static function convertir($number, $moneda = '', $centimos = '', $forzarCentimos = false)
+    public static function convertir($number, $moneda = 'dólares', $centimos = 'centavos', $forzarCentimos = false)
     {
         $converted = '';
         $decimales = '';
@@ -70,22 +70,27 @@ class NumeroALetras
             return 'No es posible convertir el numero a letras';
         }
 
-        $div_decimales = explode('.',$number);
+        $div_decimales = explode('.', $number);
 
-        if(count($div_decimales) > 1){
+        if (count($div_decimales) > 1) {
             $number = $div_decimales[0];
-            $decNumberStr = (string) $div_decimales[1];
-            if(strlen($decNumberStr) == 2){
+            $decNumberStr = (string)$div_decimales[1];
+            if (strlen($decNumberStr) == 2) {
+                $decNumberStrFill = str_pad($decNumberStr, 9, '0', STR_PAD_LEFT);
+                $decCientos = substr($decNumberStrFill, 6);
+                $decimales = self::convertGroup($decCientos);
+            } else {
+                $decNumberStr = $decNumberStr * 10;
+                $decNumberStr = (string)$decNumberStr;
                 $decNumberStrFill = str_pad($decNumberStr, 9, '0', STR_PAD_LEFT);
                 $decCientos = substr($decNumberStrFill, 6);
                 $decimales = self::convertGroup($decCientos);
             }
-        }
-        else if (count($div_decimales) == 1 && $forzarCentimos){
+        } else if (count($div_decimales) == 1 && $forzarCentimos) {
             $decimales = 'CERO ';
         }
 
-        $numberStr = (string) $number;
+        $numberStr = (string)$number;
         $numberStrFill = str_pad($numberStr, 9, '0', STR_PAD_LEFT);
         $millones = substr($numberStrFill, 0, 3);
         $miles = substr($numberStrFill, 3, 3);
@@ -115,7 +120,7 @@ class NumeroALetras
             }
         }
 
-        if(empty($decimales)){
+        if (empty($decimales)) {
             $valor_convertido = $converted . strtoupper($moneda);
         } else {
             $valor_convertido = $converted . strtoupper($moneda) . ' CON ' . $decimales . ' ' . strtoupper($centimos);
@@ -134,12 +139,12 @@ class NumeroALetras
             $output = self::$CENTENAS[$n[0] - 1];
         }
 
-        $k = intval(substr($n,1));
+        $k = intval(substr($n, 1));
 
         if ($k <= 20) {
             $output .= self::$UNIDADES[$k];
         } else {
-            if(($k > 30) && ($n[2] !== '0')) {
+            if (($k > 30) && ($n[2] !== '0')) {
                 $output .= sprintf('%sY %s', self::$DECENAS[intval($n[1]) - 2], self::$UNIDADES[intval($n[2])]);
             } else {
                 $output .= sprintf('%s%s', self::$DECENAS[intval($n[1]) - 2], self::$UNIDADES[intval($n[2])]);
